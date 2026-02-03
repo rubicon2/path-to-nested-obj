@@ -4,7 +4,9 @@
   "description": "Turns a file path with a user-specified separator into a nested object",
   "main": "index.js",
   "scripts": {
-    "test": "jest --watch"
+    "test": "jest --watch",
+    "types": "rm -f ./*.d.ts* && npx tsc",
+    "publish": "npm run types && npm publish"
   },
   "repository": {
     "type": "git",
@@ -32,6 +34,7 @@
     "eslint-plugin-jest": "^28.13.5",
     "globals": "^16.2.0",
     "jest": "^30.0.0",
-    "prettier": "^3.5.3"
+    "prettier": "^3.5.3",
+    "typescript": "^5.9.3"
   }
 }
