@@ -7,9 +7,11 @@
 function pathToNestedObj(path, pathSeparator, value) {
   const nestedPath = {};
   const pathElements = path.split(pathSeparator);
+  /** @type {{[key: string]: *}} */
   let currentLevel = nestedPath;
   for (let i = 0; i < pathElements.length; i++) {
     const nextKey = pathElements[i];
+    if (!nextKey) break;
     if (i === pathElements.length - 1) {
       currentLevel[nextKey] = value;
       break;
