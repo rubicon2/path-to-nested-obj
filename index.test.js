@@ -1,7 +1,19 @@
 const pathToNestedObj = require('./index');
 
 describe('pathToNestedObj', () => {
-  it('should create a nested object with keys corresponding to the path elements', () => {
+  it.each([
+    ['owner.name', { owner: { name: 'value' } }],
+    [
+      'planet.continent.country',
+      { planet: { continent: { country: 'value' } } },
+    ],
+  ])(
+    'create a nested object with keys corresponding to the first parameter path segments: %s',
+    (path, output) => {
+      expect(pathToNestedObj(path, '.', 'value')).toEqual(output);
+    },
+  );
+  it('create a nested object with keys corresponding to the path elements', () => {
     expect(pathToNestedObj('owner.name', '.', 'jimbo')).toEqual({
       owner: {
         name: 'jimbo',
@@ -19,84 +31,37 @@ describe('pathToNestedObj', () => {
     );
   });
 
-  it('should work with whatever separator is supplied as the second parameter', () => {
-    expect(pathToNestedObj('person/hand/finger', '/', null)).toEqual({
-      person: {
-        hand: {
-          finger: null,
-        },
-      },
-    });
-
-    expect(pathToNestedObj('person-hand-finger', '-', null)).toEqual({
-      person: {
-        hand: {
-          finger: null,
-        },
-      },
-    });
-
-    expect(pathToNestedObj('person\\hand\\finger', '\\', null)).toEqual({
-      person: {
-        hand: {
-          finger: null,
-        },
-      },
-    });
-  });
-
-  it('should use whatever value is supplied as the third parameter for the value at the deepest level', () => {
-    // Strings
-    expect(
-      pathToNestedObj('person.hand.finger', '.', 'myAmazingValue'),
-    ).toEqual({
-      person: {
-        hand: {
-          finger: 'myAmazingValue',
-        },
-      },
-    });
-
-    // Numbers
-    expect(pathToNestedObj('person.hand.finger', '.', 97)).toEqual({
-      person: {
-        hand: {
-          finger: 97,
-        },
-      },
-    });
-
-    expect(pathToNestedObj('l1.l2.l3', '.', null)).toEqual({
-      l1: {
-        l2: {
-          l3: null,
-        },
-      },
-    });
-
-    expect(pathToNestedObj('l1.l2.l3', '.', undefined)).toEqual({
-      l1: {
-        l2: {
-          l3: undefined,
-        },
-      },
-    });
-
-    // Objects
-    expect(
-      pathToNestedObj('person.hand.finger', '.', {
-        mega: 'megaValue',
-        ultra: 'ultraValue',
-      }),
-    ).toEqual({
-      person: {
-        hand: {
-          finger: {
-            mega: 'megaValue',
-            ultra: 'ultraValue',
+  it.each(['/', '-', '\\', '.'])(
+    'use second parameter as the path separator: %s',
+    (separator) => {
+      const path = ['person', 'hand', 'finger'].join(separator);
+      expect(pathToNestedObj(path, separator, null)).toEqual({
+        person: {
+          hand: {
+            finger: null,
           },
         },
-      },
-    });
-  });
+      });
+    },
+  );
+
+  it.each([
+    'myAmazingValue',
+    97,
+    [1, 2, 3],
+    { key: 'someObjectValue' },
+    null,
+    undefined,
+  ])(
+    'use third parameter as value at deepest level of output object: %s',
+    (value) => {
+      expect(pathToNestedObj('person.hand.finger', '.', value)).toEqual({
+        person: {
+          hand: {
+            finger: value,
+          },
+        },
+      });
+    },
+  );
 });
